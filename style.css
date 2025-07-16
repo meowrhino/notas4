@@ -1,0 +1,33 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: scroll;
+  background: #fefefe;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  font-family: sans-serif;
+}
+
+#canvas {
+  position: relative;
+  width: 5000px;
+  height: 5000px;
+  margin: 0 auto;
+}
+
+.note {
+  position: absolute;
+  width: 300px;
+  padding: 20px;
+  background: white;
+  border: 1px solid #ddd;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+  transition: transform 0.8s ease, opacity 0.5s ease;
+  cursor: grab;
+}
+
+.note.dragging {
+  opacity: 0.6;
+  cursor: grabbing;
+}
