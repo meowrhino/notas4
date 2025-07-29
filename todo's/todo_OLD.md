@@ -1,0 +1,53 @@
+# TODO
+
+- [x] **Preparar estructura base del proyecto**
+  - [x] Crear `index.html`, enlazar `style.css` y `app.js`
+  - [x] Crear carpeta `notes/` con HTMLs de prueba
+  - [x] Añadir `<div id="canvas"></div>` en el HTML
+- [x] **Estilos base**
+  - [x] Definir `#canvas` (position, tamaño grande, overflow)
+  - [x] Añadir botón flotante “Dispersar” (aún sin funcionalidad)
+- [x] **Carga y despliegue inicial de notas**
+  - [x] Exportar arrays de rutas desde `notas.js` (permite colecciones múltiples)
+  - [x] Cargar cada nota vía `fetch`, insertar en el DOM
+  - [x] Modularizar: función `crearNota()`, función `habilitarDragDrop()`
+  - [x] Guardar todas las notas en `allNotes`
+  - [x] Centrar el scroll del canvas al cargar la página
+- [x] **Animación y dispersión (“estallido” de notas)**
+  - [x] Mostrar todas las notas centradas al principio
+  - [x] Animar el “estallido” de notas después de un delay programable
+  - [x] Modularizar: función `estallarNotas()`
+- [x] **Modularidad y comentarios**
+  - [x] Comentar todas las funciones clave
+  - [x] Extraer toda la lógica reutilizable fuera del bucle principal
+  - [x] Dejar ready para añadir más colecciones/zones en el futuro
+- [ ] **Cascada inicial y posicionamiento no aleatorio**
+  - [ ] Implementar función `calculateNoteSize(noteEl)`
+  - [ ] Calcular posiciones válidas en “cascada” (no solapan)
+  - [ ] Implementar `canPlace(x, y, w, h, placedRects)` para colisiones
+  - [ ] Implementar `findCascadePosition(size, placedRects)`
+  - [ ] Modularizar: función `renderCascade()`
+  - [ ] Añadir transición/animación de entrada en cascada
+  - [ ] Habilitar el botón “Dispersar” al terminar la cascada
+- [ ] **Gestión de zonas/colecciones**
+  - [ ] Definir función `defineZones(nZones)`
+  - [ ] Permitir a las notas dispersarse solo en su zona correspondiente
+  - [ ] Visualizar zonas en el canvas (opcional)
+- [ ] **Dispersión aleatoria posterior**
+  - [ ] Implementar función `scatterNotes()` para dispersar notas en zona
+  - [ ] Vincular botón “Dispersar” a esta función
+- [ ] **Interacciones y UX**
+  - [ ] Implementar pop-up al hacer click en una nota (verla grande)
+  - [ ] Permitir cerrar el pop-up fácilmente (esc, click fuera, botón)
+  - [ ] Hacer responsive el canvas y las notas en móvil
+  - [ ] Permitir arrastrar y soltar notas en móvil y escritorio
+- [ ] **Pruebas y control de calidad**
+  - [ ] Verificar carga y dispersión de 10, 50, 200 notas
+  - [ ] Probar UX en móvil, tablet y escritorio
+  - [ ] Revisar scroll centrado al recargar o entrar por link directo
+  - [ ] Medir tiempo de carga y optimizar si es necesario
+- [ ] **Refactor y limpieza**
+  - [ ] Revisar y limpiar código muerto/comentado
+  - [ ] Mejorar nombres de variables y funciones si es necesario
+  - [ ] Revisar y mejorar comentarios
+  - [ ] Preparar documentación de uso interno
