@@ -55,3 +55,36 @@ body {
   bottom: 20px;
   right: 20px;
 }
+
+#btnLoad {
+  position: fixed;
+  bottom: 50px;
+  right: 20px;
+}
+
+#btnCenter {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+}
+
+
+
+.note {
+  transition: transform 0.15s cubic-bezier(.25,.8,.25,1), box-shadow 0.15s;
+  transform: scale(0.8);
+  /* Puedes dejar el tamaño mínimo aquí o adaptarlo a tu nota */
+  min-width: 200px;
+  min-height: 120px;
+  position: absolute;
+  box-shadow: 0 2px 8px #0001;
+  z-index: 1;
+  opacity: 1;
+}
+
+.note:hover {
+  transform: scale(1.08);
+  z-index: 2;
+  box-shadow: 0 6px 24px #0002;
+}
+

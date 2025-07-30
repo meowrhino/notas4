@@ -1,5 +1,40 @@
 # TODO
 
+## 🆕 Flujo caótico tipo "Windows error" (multi-zona y multi-botón)
+
+### 0. Estructura y UX de botones
+- [ ] Crear botón "Ir al centro" (siempre visible al cargar)
+- [ ] Al pulsar "Ir al centro", centrar canvas y mostrar botón "Cargar notas"
+- [ ] Desactivar los demás botones hasta haber ido al centro
+- [ ] Crear botón "Cargar notas" (visible solo tras ir al centro)
+- [ ] Eliminar/ocultar "Cargar notas" al terminar la carga caótica
+- [ ] Crear función genérica para eliminar un botón (por id/clase)
+- [ ] Botón "Dispersar" solo visible/habilitado tras cargar todas las notas
+
+### 1. Algoritmo de aparición caótica de notas
+- [ ] Implementar función para elegir posición random válida dentro de la zona asignada a cada array
+- [ ] Añadir offset de apilado (como ventanas error: +x, +y por nota, pero sin salirse de la zona)
+- [ ] Chequear que no se solapan ni se salen del canvas
+- [ ] Si no cabe, volver a probar otra posición (hasta X intentos)
+- [ ] Mostrar animación al aparecer cada nota y delay entre cada una (`async/await`)
+- [ ] Soportar varios arrays de notas, cada uno en su zona (el array define la zona)
+- [ ] Al terminar todas, habilitar botón "Dispersar"
+
+### 2. Gestión de zonas (para cuando haya varios arrays)
+- [ ] Definir función `defineZones(nZones)` (divide el canvas en columnas según número de arrays)
+- [ ] Asignar a cada nota su zona según el array de origen (usando `dataset.zone`)
+- [ ] Asegurar que cada nota solo se posiciona en su zona
+
+### 3. Refactor y modularidad
+- [ ] Modularizar la lógica de botones (mostrar, ocultar, eliminar, habilitar, deshabilitar)
+- [ ] Modularizar el algoritmo de aparición random + offset (para reutilizar)
+- [ ] Dejar preparado para que al añadir nuevos arrays en `notas.js`, todo funcione igual
+
+---
+
+### (Puedes dejar el resto del TODO debajo, marcando lo anterior como obsoleto si lo sustituyes por este nuevo flujo)
+
+
 - [x] **Preparar estructura base del proyecto**
   - [x] Crear `index.html`, enlazar `style.css` y `app.js`
   - [x] Crear carpeta `notes/` con HTMLs de prueba
@@ -65,6 +100,13 @@
 - [x] Implementar animación de "estallido" (`estallarNotas()`) y delay programable
 
 ## 🔄 Pendientes inmediatos
+
+### 0. Manejo del botón Dispersar (UX controlada)
+- [x] Quitar la dispersión automática tras la carga
+- [x] Habilitar el botón `#btnScatter` cuando cargan todas las notas
+- [x] Al hacer click, lanzar `estallarNotas()`
+- [x] Deshabilitar el botón tras usarlo (opcional, pero implementado)
+
 
 ### 1. Cascada inicial de notas
 - [ ] Crear función `calculateNoteSize(noteEl)`
