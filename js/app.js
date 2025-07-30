@@ -1,10 +1,21 @@
-import { testNotes } from "./notas.js";
+import { baja, escritos, historias, lecturas, notas_4, suenos, ideas_actuales } from "./notas.js";
+
+window.addEventListener("DOMContentLoaded", () => {
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+});
 
 // 1. Grupos de notas (puedes añadir más arrays y zonas)
 const groups = [
-  { list: testNotes, zoneIndex: 0 },
-  // { list: otrasNotas, zoneIndex: 1 }, etc.
+  { list: baja, zoneIndex: 0, name: "baja" },
+  { list: escritos, zoneIndex: 1, name: "escritos" },
+  { list: historias, zoneIndex: 2, name: "historias" },
+  { list: lecturas, zoneIndex: 3, name: "lecturas" },
+  { list: notas_4, zoneIndex: 4, name: "notas_4" },
+  { list: suenos, zoneIndex: 5, name: "suenos" },
+  { list: ideas_actuales, zoneIndex: 6, name: "ideas_actuales" },
 ];
+
+
 
 const canvas = document.getElementById("canvas");
 const allNotes = [];
@@ -61,17 +72,21 @@ function estallarNotas() {
  * Crea una nota en el DOM a partir de un HTML y la añade al canvas.
  * Devuelve el div creado.
  */
-function crearNota(html, zoneIndex) {
+function crearNota(html, zoneIndex, arrayName) {
   const note = document.createElement("div");
   note.classList.add("note");
   note.innerHTML = html;
   note.dataset.zone = zoneIndex;
+
+  // Si arrayName existe, añádelo como clase
+if (arrayName && arrayName.length > 0) note.classList.add(arrayName);
 
   // Posición inicial: centro del canvas, escala pequeña y opaca
   note.style.left = `${canvas.offsetWidth / 2}px`;
   note.style.top = `${canvas.offsetHeight / 2}px`;
   //note.style.transform = "scale(0.8)"; // Sólo esto, sin translate
   note.style.opacity = "0";
+
 
   canvas.appendChild(note);
 
@@ -133,12 +148,12 @@ function habilitarDragDrop(note) {
 /**
  * Carga todas las notas de todos los grupos y las añade al canvas.
  * Devuelve una promesa que se resuelve cuando se han añadido todas.
- */
+
 async function cargarTodasLasNotas() {
   for (const { list, zoneIndex } of groups) {
     for (const url of list) {
       try {
-        const res = await fetch(url);
+        const res = await fetch("notas/" + url); // así busca dentro de la carpeta notas
         if (!res.ok) throw new Error("No se pudo cargar: " + url);
         const html = await res.text();
         const note = crearNota(html, zoneIndex);
@@ -149,6 +164,7 @@ async function cargarTodasLasNotas() {
     }
   }
 }
+   */
 
 
 
@@ -289,14 +305,14 @@ async function cargarNotasCaoticas() {
     for (const url of list) {
       let html;
       try {
-        const res = await fetch(url);
+        const res = await fetch("notas/" + url);
         if (!res.ok) throw new Error("No se pudo cargar: " + url);
         html = await res.text();
       } catch (err) {
         console.warn(err);
         continue;
       }
-      const note = crearNota(html, zoneIndex);
+    const note = crearNota(html, zoneIndex, name);
       allNotes.push(note);
 
       // Tamaño de la nota
@@ -306,8 +322,8 @@ async function cargarNotasCaoticas() {
       // Si hay una anterior, la siguiente aparece offseteada (tipo ventanas apiladas), si no, random en viewport
       let left, top;
       if (lastX !== null && lastY !== null &&
-          lastX + offsetStep + noteW < viewLeft + viewW &&
-          lastY + offsetStep + noteH < viewTop + viewH) {
+        lastX + offsetStep + noteW < viewLeft + viewW &&
+        lastY + offsetStep + noteH < viewTop + viewH) {
         left = lastX + offsetStep;
         top = lastY + offsetStep;
       } else {
