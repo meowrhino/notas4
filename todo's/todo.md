@@ -3,30 +3,30 @@
 ## 🆕 Flujo caótico tipo "Windows error" (multi-zona y multi-botón)
 
 ### 0. Estructura y UX de botones
-- [ ] Crear botón "Ir al centro" (siempre visible al cargar)
-- [ ] Al pulsar "Ir al centro", centrar canvas y mostrar botón "Cargar notas"
-- [ ] Desactivar los demás botones hasta haber ido al centro
-- [ ] Crear botón "Cargar notas" (visible solo tras ir al centro)
-- [ ] Eliminar/ocultar "Cargar notas" al terminar la carga caótica
-- [ ] Crear función genérica para eliminar un botón (por id/clase)
-- [ ] Botón "Dispersar" solo visible/habilitado tras cargar todas las notas
+- [x] Crear botón "Ir al centro" (siempre visible al cargar)
+- [x] Al pulsar "Ir al centro", centrar canvas y mostrar botón "Cargar notas"
+- [x] Desactivar los demás botones hasta haber ido al centro
+- [x] Crear botón "Cargar notas" (visible solo tras ir al centro)
+- [-] Eliminar/ocultar "Cargar notas" al terminar la carga caótica
+- [-] Crear función genérica para eliminar un botón (por id/clase)
+- [x] Botón "Dispersar" solo visible/habilitado tras cargar todas las notas
 
 ### 1. Algoritmo de aparición caótica de notas
-- [ ] Implementar función para elegir posición random válida dentro de la zona asignada a cada array
-- [ ] Añadir offset de apilado (como ventanas error: +x, +y por nota, pero sin salirse de la zona)
+- [x] Implementar función para elegir posición random válida dentro de la zona asignada a cada array
+- [x] Añadir offset de apilado (como ventanas error: +x, +y por nota, pero sin salirse de la zona)
 - [ ] Chequear que no se solapan ni se salen del canvas
 - [ ] Si no cabe, volver a probar otra posición (hasta X intentos)
-- [ ] Mostrar animación al aparecer cada nota y delay entre cada una (`async/await`)
+- [x] Mostrar animación al aparecer cada nota y delay entre cada una (`async/await`)
 - [ ] Soportar varios arrays de notas, cada uno en su zona (el array define la zona)
-- [ ] Al terminar todas, habilitar botón "Dispersar"
+- [x] Al terminar todas, habilitar botón "Dispersar"
 
 ### 2. Gestión de zonas (para cuando haya varios arrays)
-- [ ] Definir función `defineZones(nZones)` (divide el canvas en columnas según número de arrays)
+- [x] Definir función `defineZones(nZones)` (divide el canvas en columnas según número de arrays)
 - [ ] Asignar a cada nota su zona según el array de origen (usando `dataset.zone`)
 - [ ] Asegurar que cada nota solo se posiciona en su zona
 
 ### 3. Refactor y modularidad
-- [ ] Modularizar la lógica de botones (mostrar, ocultar, eliminar, habilitar, deshabilitar)
+- [x] Modularizar la lógica de botones (mostrar, ocultar, eliminar, habilitar, deshabilitar)
 - [ ] Modularizar el algoritmo de aparición random + offset (para reutilizar)
 - [ ] Dejar preparado para que al añadir nuevos arrays en `notas.js`, todo funcione igual
 

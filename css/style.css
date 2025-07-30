@@ -48,13 +48,12 @@ body {
   z-index: 1;
 
   /* Siempre pequeñas (explícito) */
-  transform: scale(0.8);
   opacity: 1;
 
   /* Transiciones suaves para todo */
   transition: 
-    transform 0.25s cubic-bezier(.25,.8,.25,1), 
-    box-shadow 0.15s,
+    transform 0.35s cubic-bezier(.18,1.55,.28,1.02), 
+    box-shadow 0.18s,
     left 0.9s cubic-bezier(.47,1.64,.41,.8), 
     top 0.9s cubic-bezier(.47,1.64,.41,.8),
     opacity 0.5s;
@@ -62,9 +61,9 @@ body {
 
 /* Agranda solo al hover */
 .note:hover {
-  transform: scale(1.18);
-  z-index: 2;
-  box-shadow: 0 6px 24px #0002;
+  transform: scale(2);
+  z-index: 99;
+  box-shadow: 0 12px 44px #0004;
 }
 
 /* Si se está arrastrando: opaca y feedback de drag */

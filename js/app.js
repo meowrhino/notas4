@@ -18,7 +18,7 @@ function centrarScrollCanvas() {
   window.scrollTo({
     top: centerY - window.innerHeight / 2,
     left: centerX - window.innerWidth / 2,
-    behavior: "instant",
+    behavior: "smooth",
   });
 }
 
@@ -33,7 +33,7 @@ function centrarScrollCanvas() {
 //     setTimeout(() => {
 //       note.style.left = `${finalX}px`;
 //       note.style.top = `${finalY}px`;
-//       note.style.transform = "none";
+//       //note.style.transform = "none";
 //       note.style.opacity = "1";
 //     }, 100);
 //   });
@@ -41,7 +41,7 @@ function centrarScrollCanvas() {
 
 function estallarNotas() {
   allNotes.forEach(note => {
-    // Explota a cualquier sitio del canvas (puedes limitar más si prefieres)
+    // Explota a cualquier sixtio del canvas (puedes limitar más si prefieres)
     const canvasW = canvas.offsetWidth, canvasH = canvas.offsetHeight;
     const noteW = note.offsetWidth || 240;
     const noteH = note.offsetHeight || 120;
@@ -70,7 +70,7 @@ function crearNota(html, zoneIndex) {
   // Posición inicial: centro del canvas, escala pequeña y opaca
   note.style.left = `${canvas.offsetWidth / 2}px`;
   note.style.top = `${canvas.offsetHeight / 2}px`;
-  note.style.transform = "translate(-50%, -50%) scale(0.5)";
+  //note.style.transform = "scale(0.8)"; // Sólo esto, sin translate
   note.style.opacity = "0";
 
   canvas.appendChild(note);
@@ -212,7 +212,7 @@ async function renderCascade() {
   for (const note of allNotes) {
     // Haz visible la nota para poder medirla
     note.style.opacity = "0";
-    note.style.transform = "scale(0.5)";
+    //note.style.transform = "scale(0.5)";
     note.style.left = `${canvasWidth / 2}px`;
     note.style.top = `${canvasHeight / 2}px`;
 
@@ -227,7 +227,7 @@ async function renderCascade() {
     note.style.transition = "all 0.5s cubic-bezier(.25,.8,.25,1)";
     note.style.left = `${pos.x}px`;
     note.style.top = `${pos.y}px`;
-    note.style.transform = "none";
+    //note.style.transform = "none";
     note.style.opacity = "1";
 
     // Marca la posición ocupada
@@ -259,7 +259,6 @@ btnCenter.addEventListener("click", () => {
 btnLoad.addEventListener("click", async () => {
   btnLoad.disabled = true;
   await cargarNotasCaoticas(); // Aquí la función caótica que haremos después
-  btnLoad.style.display = "none"; // Oculta el botón tras cargar notas
   btnScatter.disabled = false;
 });
 
@@ -319,7 +318,7 @@ async function cargarNotasCaoticas() {
       note.style.left = `${left}px`;
       note.style.top = `${top}px`;
       note.style.opacity = "1";
-      note.style.transform = "scale(0.8)";
+      //note.style.transform = "scale(0.8)";
 
       lastX = left;
       lastY = top;
