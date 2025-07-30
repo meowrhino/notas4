@@ -25,19 +25,37 @@ function centrarScrollCanvas() {
 /**
  * Hace “explotar” todas las notas desde el centro a posiciones aleatorias.
  */
+// function estallarNotas() {
+//   allNotes.forEach(note => {
+//     const finalX = Math.random() * (canvas.offsetWidth - 400);
+//     const finalY = Math.random() * (canvas.offsetHeight - 400);
+
+//     setTimeout(() => {
+//       note.style.left = `${finalX}px`;
+//       note.style.top = `${finalY}px`;
+//       note.style.transform = "none";
+//       note.style.opacity = "1";
+//     }, 100);
+//   });
+// }
+
 function estallarNotas() {
   allNotes.forEach(note => {
-    const finalX = Math.random() * (canvas.offsetWidth - 400);
-    const finalY = Math.random() * (canvas.offsetHeight - 400);
-
+    // Explota a cualquier sitio del canvas (puedes limitar más si prefieres)
+    const canvasW = canvas.offsetWidth, canvasH = canvas.offsetHeight;
+    const noteW = note.offsetWidth || 240;
+    const noteH = note.offsetHeight || 120;
+    const finalX = Math.random() * (canvasW - noteW);
+    const finalY = Math.random() * (canvasH - noteH);
     setTimeout(() => {
       note.style.left = `${finalX}px`;
       note.style.top = `${finalY}px`;
-      note.style.transform = "none";
-      note.style.opacity = "1";
+      // NO cambies el scale ni la opacidad
     }, 100);
   });
 }
+
+
 
 /**
  * Crea una nota en el DOM a partir de un HTML y la añade al canvas.
@@ -254,15 +272,63 @@ btnScatter.addEventListener("click", () => {
 
 
 async function cargarNotasCaoticas() {
-  // Mientras no haya lógica real, solo carga las notas de siempre
-  await cargarTodasLasNotas();
-  // Aplica una animación muy sencilla para ver que funciona
-  allNotes.forEach((note, i) => {
-    note.style.opacity = "1";
-    note.style.left = `${150 + 20 * i}px`;
-    note.style.top = `150px`;
-  });
+  // Elimina las notas anteriores
+  allNotes.forEach(note => note.remove());
+  allNotes.length = 0;
+
+  // Calcula el área visible del viewport DENTRO del canvas
+  const viewLeft = window.scrollX;
+  const viewTop = window.scrollY;
+  const viewW = window.innerWidth;
+  const viewH = window.innerHeight;
+
+  // Parámetros para el efecto “ventanas apiladas caóticas”
+  let offsetX = 0, offsetY = 0, offsetStep = 22;
+  let lastX = null, lastY = null;
+
+  for (const { list, zoneIndex } of groups) {
+    for (const url of list) {
+      let html;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("No se pudo cargar: " + url);
+        html = await res.text();
+      } catch (err) {
+        console.warn(err);
+        continue;
+      }
+      const note = crearNota(html, zoneIndex);
+      allNotes.push(note);
+
+      // Tamaño de la nota
+      let noteW = note.offsetWidth || 240;
+      let noteH = note.offsetHeight || 120;
+
+      // Si hay una anterior, la siguiente aparece offseteada (tipo ventanas apiladas), si no, random en viewport
+      let left, top;
+      if (lastX !== null && lastY !== null &&
+          lastX + offsetStep + noteW < viewLeft + viewW &&
+          lastY + offsetStep + noteH < viewTop + viewH) {
+        left = lastX + offsetStep;
+        top = lastY + offsetStep;
+      } else {
+        // Random dentro del viewport visible
+        left = viewLeft + Math.random() * (viewW - noteW);
+        top = viewTop + Math.random() * (viewH - noteH);
+      }
+      note.style.left = `${left}px`;
+      note.style.top = `${top}px`;
+      note.style.opacity = "1";
+      note.style.transform = "scale(0.8)";
+
+      lastX = left;
+      lastY = top;
+      await new Promise(r => setTimeout(r, 26)); // Delay para el efecto visual
+    }
+  }
 }
+
+
 
 function isCanvasCentered() {
   const centerX = canvas.offsetWidth / 2;
@@ -283,3 +349,19 @@ btnCenter.disabled = isCanvasCentered();
 
 
 
+function defineZones(n) {
+  // Divide el canvas en n columnas iguales
+  const zones = [];
+  const padding = 40;
+  const canvasW = canvas.offsetWidth, canvasH = canvas.offsetHeight;
+  const zoneW = (canvasW - padding * (n + 1)) / n;
+  for (let i = 0; i < n; i++) {
+    zones.push({
+      x: padding + i * (zoneW + padding),
+      y: padding,
+      w: zoneW,
+      h: canvasH - 2 * padding,
+    });
+  }
+  return zones;
+}

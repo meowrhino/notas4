@@ -9,6 +9,7 @@ body {
   font-family: sans-serif;
 }
 
+/* GRAN lienzo para las notas (puedes ajustar dimensiones si quieres) */
 #canvas {
   position: relative;
   width: 5000px;
@@ -16,75 +17,64 @@ body {
   margin: 0 auto;
 }
 
-.note {
-  position: absolute;
-  width: 300px;
-  padding: 20px;
-  background: white;
-  border: 1px solid #ddd;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.8s ease, opacity 0.5s ease;
-  cursor: grab;
-}
-
-.note.dragging {
-  opacity: 0.6;
-  cursor: grabbing;
-}
-
-.note {
-  position: absolute;
-  transform: scale(0.3);
-  opacity: 0;
-  transition: transform 0.8s ease, opacity 0.5s ease, left 0.8s ease,
-    top 0.8s ease;
-}
-.note h1 {
-  font-weight: bold;
-  font-size: 0.8em;
-}
-
-#canvas {
-  position: relative;
-  width: 1000dvw;
-  height: 1000dvh;
-}
-
+/* Botones siempre fijos abajo a la derecha */
 #btnScatter {
   position: fixed;
   bottom: 20px;
   right: 20px;
 }
-
 #btnLoad {
   position: fixed;
   bottom: 50px;
   right: 20px;
 }
-
 #btnCenter {
   position: fixed;
   bottom: 80px;
   right: 20px;
 }
 
-
-
+/* NOTAS flotantes (solo una regla por clase) */
 .note {
-  transition: transform 0.15s cubic-bezier(.25,.8,.25,1), box-shadow 0.15s;
-  transform: scale(0.8);
-  /* Puedes dejar el tamaño mínimo aquí o adaptarlo a tu nota */
+  position: absolute;
+  width: 300px;
   min-width: 200px;
   min-height: 120px;
-  position: absolute;
-  box-shadow: 0 2px 8px #0001;
+  padding: 20px;
+  background: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px #0001, 2px 2px 10px rgba(0,0,0,0.08);
+  cursor: grab;
   z-index: 1;
+
+  /* Siempre pequeñas (explícito) */
+  transform: scale(0.8);
   opacity: 1;
+
+  /* Transiciones suaves para todo */
+  transition: 
+    transform 0.25s cubic-bezier(.25,.8,.25,1), 
+    box-shadow 0.15s,
+    left 0.9s cubic-bezier(.47,1.64,.41,.8), 
+    top 0.9s cubic-bezier(.47,1.64,.41,.8),
+    opacity 0.5s;
 }
 
+/* Agranda solo al hover */
 .note:hover {
-  transform: scale(1.08);
+  transform: scale(1.18);
   z-index: 2;
   box-shadow: 0 6px 24px #0002;
 }
 
+/* Si se está arrastrando: opaca y feedback de drag */
+.note.dragging {
+  opacity: 0.6;
+  cursor: grabbing;
+}
+
+/* Título pequeño dentro de la nota */
+.note h1 {
+  font-weight: bold;
+  font-size: 0.8em;
+}
