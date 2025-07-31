@@ -12,8 +12,8 @@ body {
 /* GRAN lienzo para las notas (puedes ajustar dimensiones si quieres) */
 #canvas {
   position: relative;
-  width: 5000px;
-  height: 5000px;
+  width: 10000px;
+  height: 10000px;
   margin: 0 auto;
 }
 
@@ -31,34 +31,36 @@ body {
 /* NOTAS flotantes (solo una regla por clase) */
 .note {
   position: absolute;
-  width: 300px;
-  min-width: 200px;
-  min-height: 120px;
-  padding: 20px;
+  width: 125px;
+  min-width: 125px;
+  min-height: 60px;
+  padding: 10px 12px;
   background: white;
   border: 1px solid #ddd;
   box-shadow: 0 2px 8px #0001, 2px 2px 10px rgba(0,0,0,0.08);
   cursor: grab;
   z-index: 1;
-
-  /* Siempre pequeñas (explícito) */
   opacity: 1;
-
-  /* Transiciones suaves para todo */
   transition: 
     transform 0.35s cubic-bezier(.18,1.55,.28,1.02), 
     box-shadow 0.18s,
     left 0.9s cubic-bezier(.47,1.64,.41,.8), 
     top 0.9s cubic-bezier(.47,1.64,.41,.8),
-    opacity 0.5s;
+    opacity 0.5s,
+    width 0.26s, min-width 0.26s, min-height 0.26s, padding 0.26s;
 }
 
 /* Agranda solo al hover */
 .note:hover {
   transform: scale(2);
   z-index: 99;
-  box-shadow: 0 12px 44px #0004;
+  box-shadow: 0 16px 44px #0003;
+  border: 2px solid #fad;
+  background: #fffdfe;
+    overflow: auto;
+  max-height: 340px;  /* ajusta a tu gusto */
 }
+
 
 /* Si se está arrastrando: opaca y feedback de drag */
 .note.dragging {
@@ -70,4 +72,37 @@ body {
 .note h1 {
   font-weight: bold;
   font-size: 0.8em;
+}
+
+
+#notePopup {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#notePopupBg {
+  position: absolute;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.22);
+  backdrop-filter: blur(3px);
+}
+#notePopupContent {
+  position: relative;
+  background: #fff;
+  padding: 2em 2.2em 1.7em 2.2em;
+  border-radius: 1.7em;
+  max-width: 620px;
+  max-height: 78vh;
+  min-width: 220px;
+  box-shadow: 0 8px 64px 12px #0002;
+
+  font-size: 1.13em;
+
+  overflow: auto;
+  max-height: 78vh;
+  word-break: break-word;
+  white-space: pre-line;
 }

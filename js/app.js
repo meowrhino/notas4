@@ -15,6 +15,17 @@ const groups = [
   { list: ideas_actuales, zoneIndex: 6, name: "ideas_actuales" },
 ];
 
+const coloresZonas = [
+  "rgba(255, 212, 117, 1)", // amarillo pastel
+  "rgba(178, 235, 242, 1)", // azul clarito
+  "rgba(206, 255, 194, 1)", // verde pastel
+  "rgba(253, 205, 252, 1)", // rosa/lila pastel
+  "rgba(255, 234, 180, 1)", // naranja claro
+  "rgba(207, 197, 255, 1)", // violeta
+  "rgba(255, 220, 220, 1)"  // rosita
+];
+
+
 
 
 const canvas = document.getElementById("canvas");
@@ -51,20 +62,30 @@ function centrarScrollCanvas() {
 // }
 
 function estallarNotas() {
+  // Necesitas saber las zonas generadas en la última carga:
+  const canvasW = canvas.offsetWidth, canvasH = canvas.offsetHeight;
+  const zonas = window.zonasNotasActuales || []; // <-- guardaremos esto en cargarNotasCaoticas
+
   allNotes.forEach(note => {
-    // Explota a cualquier sixtio del canvas (puedes limitar más si prefieres)
-    const canvasW = canvas.offsetWidth, canvasH = canvas.offsetHeight;
+    // De qué zona es esta nota
+    const zonaIdx = Number(note.dataset.zona);
+    const zona = zonas[zonaIdx];
+    if (!zona) return; // safety
+
     const noteW = note.offsetWidth || 240;
     const noteH = note.offsetHeight || 120;
-    const finalX = Math.random() * (canvasW - noteW);
-    const finalY = Math.random() * (canvasH - noteH);
+
+    const finalX = zona.x + Math.random() * (zona.w - noteW);
+    const finalY = zona.y + Math.random() * (zona.h - noteH);
+
     setTimeout(() => {
       note.style.left = `${finalX}px`;
       note.style.top = `${finalY}px`;
-      // NO cambies el scale ni la opacidad
-    }, 100);
+      note.style.opacity = "1";
+    }, 100 + Math.random() * 80);
   });
 }
+
 
 
 
@@ -79,7 +100,7 @@ function crearNota(html, zoneIndex, arrayName) {
   note.dataset.zone = zoneIndex;
 
   // Si arrayName existe, añádelo como clase
-if (arrayName && arrayName.length > 0) note.classList.add(arrayName);
+  if (arrayName && arrayName.length > 0) note.classList.add(arrayName);
 
   // Posición inicial: centro del canvas, escala pequeña y opaca
   note.style.left = `${canvas.offsetWidth / 2}px`;
@@ -280,28 +301,56 @@ btnLoad.addEventListener("click", async () => {
 
 // Botón "Dispersar"
 btnScatter.addEventListener("click", () => {
-  estallarNotas();
   btnScatter.disabled = true;
+  setTimeout(() => {
+    estallarNotas();
+  }, 230); // Espera 230ms para que el usuario vea la explosión más claramente
 });
 
 
 
+
 async function cargarNotasCaoticas() {
-  // Elimina las notas anteriores
-  allNotes.forEach(note => note.remove());
-  allNotes.length = 0;
+  const canvasW = canvas.offsetWidth;
+  const canvasH = canvas.offsetHeight;
+  const zonas = generarZonasSinSolape(groups, canvasW, canvasH);
+  window.zonasNotasActuales = zonas; // Así las usará estallarNotas luego
 
-  // Calcula el área visible del viewport DENTRO del canvas
-  const viewLeft = window.scrollX;
-  const viewTop = window.scrollY;
-  const viewW = window.innerWidth;
-  const viewH = window.innerHeight;
+  // (Opcional) Dibuja las zonas para debug visual
+  zonas.forEach((zona, i) => {
+    const zdiv = document.createElement("div");
+    zdiv.className = "zonaDebug";
+    zdiv.style.position = "absolute";
+    zdiv.style.left = `${zona.x}px`;
+    zdiv.style.top = `${zona.y}px`;
+    zdiv.style.width = `${zona.w}px`;
+    zdiv.style.height = `${zona.h}px`;
+    zdiv.style.background = coloresZonas[i % coloresZonas.length];
+    zdiv.style.zIndex = 0;
+    zdiv.style.pointerEvents = "none";
+    zdiv.style.borderRadius = "38px";
+    canvas.appendChild(zdiv);
+  });
 
-  // Parámetros para el efecto “ventanas apiladas caóticas”
-  let offsetX = 0, offsetY = 0, offsetStep = 22;
-  let lastX = null, lastY = null;
 
-  for (const { list, zoneIndex } of groups) {
+  let offsetX = 0;
+  let offsetY = 0;
+  const offsetStep = 22;
+  const viewerW = window.innerWidth;
+  const viewerH = window.innerHeight;
+  const noteW = 340; // Ajusta al ancho típico de tu nota
+  const noteH = 180; // Ajusta al alto típico de tu nota
+
+  // El centro del viewport respecto al canvas
+  const centerX = canvas.offsetWidth / 2;
+  const centerY = canvas.offsetHeight / 2;
+
+  // Límite para empezar un nuevo apilado (que no se salga de la vista)
+  const maxX = centerX + viewerW / 2 - noteW - 40;
+  const maxY = centerY + viewerH / 2 - noteH - 40;
+
+  for (let i = 0; i < groups.length; i++) {
+    const { list, zoneIndex, name } = groups[i];
     for (const url of list) {
       let html;
       try {
@@ -312,37 +361,160 @@ async function cargarNotasCaoticas() {
         console.warn(err);
         continue;
       }
-    const note = crearNota(html, zoneIndex, name);
+
+      const note = crearNota(html, zoneIndex, name);
       allNotes.push(note);
+      note.dataset.zona = i;
 
-      // Tamaño de la nota
-      let noteW = note.offsetWidth || 240;
-      let noteH = note.offsetHeight || 120;
-
-      // Si hay una anterior, la siguiente aparece offseteada (tipo ventanas apiladas), si no, random en viewport
-      let left, top;
-      if (lastX !== null && lastY !== null &&
-        lastX + offsetStep + noteW < viewLeft + viewW &&
-        lastY + offsetStep + noteH < viewTop + viewH) {
-        left = lastX + offsetStep;
-        top = lastY + offsetStep;
-      } else {
-        // Random dentro del viewport visible
-        left = viewLeft + Math.random() * (viewW - noteW);
-        top = viewTop + Math.random() * (viewH - noteH);
-      }
-      note.style.left = `${left}px`;
-      note.style.top = `${top}px`;
+      // Apila en diagonal tipo error Windows, pero nunca fuera del viewer
+      let x = centerX + offsetX;
+      let y = centerY + offsetY;
+      note.style.left = `${x}px`;
+      note.style.top = `${y}px`;
       note.style.opacity = "1";
-      //note.style.transform = "scale(0.8)";
 
-      lastX = left;
-      lastY = top;
-      await new Promise(r => setTimeout(r, 26)); // Delay para el efecto visual
+      offsetX += offsetStep;
+      offsetY += offsetStep;
+
+      // Si se sale del viewer, empieza de nuevo en un punto random dentro del viewer
+      if (x > maxX || y > maxY) {
+        offsetX = -viewerW / 2 + Math.random() * viewerW * 0.85;
+        offsetY = -viewerH / 2 + Math.random() * viewerH * 0.85;
+      }
+
+
+      await new Promise(r => setTimeout(r, 14));
     }
   }
+
 }
 
+
+/*
+async function cargarNotasCaoticas() {
+  // Elimina las notas anteriores
+  allNotes.forEach(note => note.remove());
+  allNotes.length = 0;
+
+  /*
+  // Calcula el área visible del viewport DENTRO del canvas
+  const viewLeft = window.scrollX;
+  const viewTop = window.scrollY;
+  const viewW = window.innerWidth;
+  const viewH = window.innerHeight;
+
+  // Parámetros para el efecto “ventanas apiladas caóticas”
+  let offsetX = 0, offsetY = 0, offsetStep = 22;
+  let lastX = null, lastY = null;
+  
+
+  const canvasW = canvas.offsetWidth;
+  const canvasH = canvas.offsetHeight;
+  const zonas = generarZonasSinSolape(groups, canvasW, canvasH);
+  window.zonasNotasActuales = zonas; // Así la función estallarNotas podrá usarlas después
+
+
+  // --- Dibuja las zonas coloreadas ---
+  zonas.forEach((zona, i) => {
+    const zdiv = document.createElement("div");
+    zdiv.className = "zonaDebug";
+    zdiv.style.position = "absolute";
+    zdiv.style.left = `${zona.x}px`;
+    zdiv.style.top = `${zona.y}px`;
+    zdiv.style.width = `${zona.w}px`;
+    zdiv.style.height = `${zona.h}px`;
+    zdiv.style.background = coloresZonas[i % coloresZonas.length];
+    zdiv.style.zIndex = 0;
+    zdiv.style.pointerEvents = "none";
+    zdiv.style.borderRadius = "38px";
+    canvas.appendChild(zdiv);
+  });
+
+
+  // --- Distribuye las notas ---
+  for (let i = 0; i < groups.length; i++) {
+    const { list, zoneIndex, name } = groups[i];
+    const zona = zonas[i];
+
+    for (const url of list) {
+      let html;
+      try {
+        const res = await fetch("notas/" + url);
+        if (!res.ok) throw new Error("No se pudo cargar: " + url);
+        html = await res.text();
+      } catch (err) {
+        console.warn(err);
+        continue;
+      }
+
+      const note = crearNota(html, zoneIndex, name);
+      allNotes.push(note);
+
+      note.dataset.zona = i;
+      note.style.opacity = "1";
+
+
+
+      // Tamaño estimado (puedes mejorarlo midiendo el nodo después si lo necesitas)
+      const noteW = note.offsetWidth || 300;
+      const noteH = note.offsetHeight || 120;
+
+      // Posición random dentro de la zona asignada
+      const nx = zona.x + Math.random() * (zona.w - noteW);
+      const ny = zona.y + Math.random() * (zona.h - noteH);
+      /*
+      note.style.left = `${nx}px`;
+      note.style.top = `${ny}px`;
+      note.style.opacity = "1";
+
+      await new Promise(r => setTimeout(r, 18)); // Delay para el efecto visual
+    }
+  }
+
+  /*
+    for (const { list, zoneIndex } of groups) {
+      for (const url of list) {
+        let html;
+        try {
+          const res = await fetch("notas/" + url);
+          if (!res.ok) throw new Error("No se pudo cargar: " + url);
+          html = await res.text();
+        } catch (err) {
+          console.warn(err);
+          continue;
+        }
+        const note = crearNota(html, zoneIndex, name);
+        allNotes.push(note);
+  
+        // Tamaño de la nota
+        let noteW = note.offsetWidth || 240;
+        let noteH = note.offsetHeight || 120;
+  
+        // Si hay una anterior, la siguiente aparece offseteada (tipo ventanas apiladas), si no, random en viewport
+        let left, top;
+        if (lastX !== null && lastY !== null &&
+          lastX + offsetStep + noteW < viewLeft + viewW &&
+          lastY + offsetStep + noteH < viewTop + viewH) {
+          left = lastX + offsetStep;
+          top = lastY + offsetStep;
+        } else {
+          // Random dentro del viewport visible
+          left = viewLeft + Math.random() * (viewW - noteW);
+          top = viewTop + Math.random() * (viewH - noteH);
+        }
+        note.style.left = `${left}px`;
+        note.style.top = `${top}px`;
+        note.style.opacity = "1";
+        //note.style.transform = "scale(0.8)";
+  
+        lastX = left;
+        lastY = top;
+        await new Promise(r => setTimeout(r, 26)); // Delay para el efecto visual
+      }
+    }
+      
+}
+*/
 
 
 function isCanvasCentered() {
@@ -363,7 +535,7 @@ window.addEventListener("scroll", () => {
 btnCenter.disabled = isCanvasCentered();
 
 
-
+/*
 function defineZones(n) {
   // Divide el canvas en n columnas iguales
   const zones = [];
@@ -380,3 +552,99 @@ function defineZones(n) {
   }
   return zones;
 }
+  */
+
+/*
+
+function generarZonas(groups, canvasW, canvasH) {
+  const totalNotas = groups.reduce((sum, g) => sum + g.list.length, 0);
+  const zonas = [];
+
+  for (const group of groups) {
+    const prop = group.list.length / totalNotas;
+    // Área proporcional pero con forma caótica
+    const zonaW = Math.max(600, Math.floor(canvasW * prop * (0.6 + Math.random() * 0.8)));
+    const zonaH = Math.max(800, Math.floor(canvasH * (0.8 + Math.random() * 0.6)));
+    const x = Math.floor(Math.random() * (canvasW - zonaW));
+    const y = Math.floor(Math.random() * (canvasH - zonaH));
+    zonas.push({ x, y, w: zonaW, h: zonaH });
+  }
+  return zonas;
+}
+
+*/
+
+function generarZonasSinSolape(groups, canvasW, canvasH) {
+  const totalNotas = groups.reduce((sum, g) => sum + g.list.length, 0);
+  const zonas = [];
+  const placedRects = [];
+
+  for (const group of groups) {
+    const prop = group.list.length / totalNotas;
+    // Haz cada zona más cuadrada, no tan alargada
+    const base = Math.max(canvasW, canvasH);
+    const size = Math.max(520, Math.floor(base * prop * (0.55 + Math.random() * 0.65)));
+    const zonaW = size + Math.floor(Math.random() * 80); // casi cuadradas
+    const zonaH = size + Math.floor(Math.random() * 80);
+
+    let intentos = 0, maxIntentos = 300;
+    let x, y, solapa;
+    do {
+      x = 200 + Math.floor(Math.random() * (canvasW - zonaW - 400)); // +200 para evitar el borde
+      y = 200 + Math.floor(Math.random() * (canvasH - zonaH - 400)); // +200 para evitar solo arriba
+      solapa = false;
+
+      // NO permitir zona en el centro
+      const centerX = canvasW / 2;
+      const centerY = canvasH / 2;
+      const buffer = 320; // zona central que debe quedar libre (ajusta si quieres más/menos)
+
+
+      if (
+        x < centerX + buffer &&
+        x + zonaW > centerX - buffer &&
+        y < centerY + buffer &&
+        y + zonaH > centerY - buffer
+      ) {
+        solapa = true; // Si solapa con el área central, no vale
+      }
+
+      for (const r of placedRects) {
+        if (
+          x < r.x + r.w &&
+          x + zonaW > r.x &&
+          y < r.y + r.h &&
+          y + zonaH > r.y
+        ) {
+          solapa = true;
+          break;
+        }
+      }
+      intentos++;
+    } while (solapa && intentos < maxIntentos);
+
+    const zona = { x, y, w: zonaW, h: zonaH };
+    zonas.push(zona);
+    placedRects.push(zona);
+  }
+  return zonas;
+}
+
+
+
+const notePopup = document.getElementById("notePopup");
+const notePopupContent = document.getElementById("notePopupContent");
+const notePopupBg = document.getElementById("notePopupBg");
+
+notePopupBg.onclick = () => notePopup.style.display = "none";
+
+// Haz que todas las notas abran el popup al hacer click:
+function addPopupOnClick(note) {
+  note.onclick = (e) => {
+    notePopup.style.display = "flex";
+    notePopupContent.innerHTML = note.innerHTML;
+  };
+}
+
+// Después de crear cada nota, llama a:
+addPopupOnClick(note);
