@@ -17,48 +17,101 @@ body {
   margin: 0 auto;
 }
 
-/* Botones siempre fijos abajo a la derecha */
-#btnScatter, #btnLoad, #btnCenter {
+/* Botones siempre fijos abajo a la derecha 
+#btnScatter,
+#btnLoad,
+#btnCenter {
   position: fixed;
   right: 2vw;
   z-index: 2000;
 }
-#btnScatter { bottom: 2vw; }
-#btnLoad { bottom: 6vw; }
-#btnCenter { bottom: 10vw; }
+
+#btnScatter {
+  bottom: 2vw;
+}
+
+#btnLoad {
+  bottom: 6vw;
+}
+
+#btnCenter {
+  bottom: 10vw;
+}
+
+*/
+/* Botonera con botones verticales */
+#botonera {
+  position: fixed;
+  right: 2vw;
+  bottom: 2vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6vw;
+  z-index: 2000;
+  align-items: flex-end;
+}
+
+#botonera button {
+  width: 100%;
+  font-size: 1rem;
+  margin: 0;
+  padding: 0.4em 0.7em;
+
+  box-shadow: 0 2px 16px #0001;
+  border: 1.5px solid #eaeaea;
+}
+
 
 
 /* NOTAS flotantes (solo una regla por clase) */
 .note {
   position: absolute;
-  width: 125px;
+  /* width: 125px; */
   min-width: 125px;
   min-height: 60px;
+
+  max-height: 200px;
+  max-width: 280px;
+
+  overflow-y: scroll;
+  word-break: break-word;
+
+
   padding: 10px 12px;
   background: white;
   border: 1px solid #ddd;
-  box-shadow: 0 2px 8px #0001, 2px 2px 10px rgba(0,0,0,0.08);
-  cursor: grab;
+  box-shadow: 0 2px 8px #0001, 2px 2px 10px rgba(0, 0, 0, 0.08);
+
+  /* cursor: grab; */
   z-index: 1;
   opacity: 1;
-  transition: 
-    transform 0.35s cubic-bezier(.18,1.55,.28,1.02), 
+  transition:
+    transform 0.35s cubic-bezier(.18, 1.55, .28, 1.02),
     box-shadow 0.18s,
-    left 0.9s cubic-bezier(.47,1.64,.41,.8), 
-    top 0.9s cubic-bezier(.47,1.64,.41,.8),
+    left 0.9s cubic-bezier(.47, 1.64, .41, .8),
+    top 0.9s cubic-bezier(.47, 1.64, .41, .8),
     opacity 0.5s,
     width 0.26s, min-width 0.26s, min-height 0.26s, padding 0.26s;
+
+  /* ...el resto de estilos... */
+
+  /* <-- Esto ya ayuda bastante */
+  /* <-- Esto es aún más bestia: corta donde sea */
 }
 
 /* Agranda solo al hover */
 .note:hover {
   transform: scale(2);
   z-index: 99;
-  box-shadow: 0 16px 44px #0003;
-  border: 2px solid #fad;
-  background: #fffdfe;
-    overflow: auto;
-  max-height: 340px;  /* ajusta a tu gusto */
+  /* box-shadow: 0 16px 44px #0003; */
+  /* border: 2px solid #fad; */
+  /* background: #fffdfe; */
+  /* overflow: auto; */
+  max-height: 340px;
+  max-width: 560px;
+  /* opcional, para que crezca un poco a lo ancho también */
+  /* puedes añadir un pequeño "grow" si quieres: */
+  /* ajusta a tu gusto */
 }
 
 
@@ -77,18 +130,26 @@ body {
 
 #notePopup {
   position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 #notePopupBg {
   position: absolute;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.22);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.22);
   backdrop-filter: blur(3px);
 }
+
 #notePopupContent {
   position: relative;
   background: #fff;

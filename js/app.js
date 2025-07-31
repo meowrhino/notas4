@@ -120,6 +120,47 @@ function crearNota(html, zoneIndex, arrayName) {
 /**
  * Añade drag & drop básico a una nota (soporta touch y mouse).
  */
+
+function habilitarDragDrop(note) {
+  let offsetX, offsetY;
+  let dragging = false;
+  let mouseMoved = false; // Para saber si moviste el ratón
+
+  note.addEventListener("mousedown", (e) => {
+    dragging = true;
+    mouseMoved = false;
+    offsetX = e.clientX - note.offsetLeft;
+    offsetY = e.clientY - note.offsetTop;
+    note.classList.add("dragging");
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (dragging) {
+      const dx = Math.abs(e.clientX - (note.offsetLeft + offsetX));
+      const dy = Math.abs(e.clientY - (note.offsetTop + offsetY));
+      if (dx > 3 || dy > 3) mouseMoved = true; // Solo cuenta como "drag" si hay movimiento real
+      note.style.left = `${e.clientX - offsetX}px`;
+      note.style.top = `${e.clientY - offsetY}px`;
+    }
+  });
+
+  window.addEventListener("mouseup", (e) => {
+    if (dragging) {
+      note.classList.remove("dragging");
+      dragging = false;
+      // Solo click si NO has movido el ratón
+      if (!mouseMoved) {
+        note.dispatchEvent(new Event('noteClick'));
+      }
+    }
+  });
+
+  // Mobile/touch igual (puedes adaptar lo de arriba para touch si quieres)
+}
+
+
+
+/* old
 function habilitarDragDrop(note) {
   let offsetX, offsetY;
   let dragging = false;
@@ -165,6 +206,8 @@ function habilitarDragDrop(note) {
     note.classList.remove("dragging");
   });
 }
+
+*/
 
 /**
  * Carga todas las notas de todos los grupos y las añade al canvas.
@@ -284,28 +327,25 @@ btnCenter.disabled = false;
 btnLoad.disabled = true;
 btnScatter.disabled = true;
 
-// Botón "Ir al centro"
+
+
 btnCenter.addEventListener("click", () => {
   centrarScrollCanvas();
-  btnCenter.disabled = true;
-  btnLoad.disabled = false;
-  btnScatter.disabled = true;
+  // No disables aquí: el updateBotones lo hace con el scroll event
 });
 
-// Botón "Cargar notas"
 btnLoad.addEventListener("click", async () => {
   btnLoad.disabled = true;
-  await cargarNotasCaoticas(); // Aquí la función caótica que haremos después
-  btnScatter.disabled = false;
+  vaciarNotas();           // Vacía antes de cargar
+  await cargarNotasCaoticas();
+  updateBotones();         // Actualiza después de cargar
 });
 
-// Botón "Dispersar"
 btnScatter.addEventListener("click", () => {
-  btnScatter.disabled = true;
-  setTimeout(() => {
-    estallarNotas();
-  }, 230); // Espera 230ms para que el usuario vea la explosión más claramente
+  estallarNotas();
+  // NO disables aquí, que el botón siempre esté activo si hay notas
 });
+
 
 
 
@@ -363,6 +403,7 @@ async function cargarNotasCaoticas() {
       }
 
       const note = crearNota(html, zoneIndex, name);
+        addPopupOnClick(note);   // <--- AQUÍ VA
       allNotes.push(note);
       note.dataset.zona = i;
 
@@ -640,11 +681,46 @@ notePopupBg.onclick = () => notePopup.style.display = "none";
 
 // Haz que todas las notas abran el popup al hacer click:
 function addPopupOnClick(note) {
+  // Abre popup al hacer click normal
   note.onclick = (e) => {
     notePopup.style.display = "flex";
     notePopupContent.innerHTML = note.innerHTML;
   };
+  // Abre popup al hacer "noteClick" (usado por el drag sin arrastrar)
+  note.addEventListener('noteClick', (e) => {
+    notePopup.style.display = "flex";
+    notePopupContent.innerHTML = note.innerHTML;
+  });
 }
 
-// Después de crear cada nota, llama a:
-addPopupOnClick(note);
+
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, 10); // Espera mínimo, aseguras que DOM esté listo
+});
+
+// Helpers:
+function hayNotasCargadas() {
+  return allNotes.length > 0;
+}
+
+function vaciarNotas() {
+  allNotes.forEach(note => note.remove());
+  allNotes.length = 0;
+  // Elimina zonasDebug si quieres
+  document.querySelectorAll('.zonaDebug').forEach(z => z.remove());
+}
+
+function updateBotones() {
+  btnCenter.disabled = isCanvasCentered();
+  btnLoad.disabled = !isCanvasCentered();
+  btnScatter.disabled = !hayNotasCargadas();
+}
+
+// Añade este check al evento de scroll
+window.addEventListener("scroll", updateBotones);
+
+// Al iniciar, fuerza el estado correcto
+updateBotones();
